@@ -14,6 +14,7 @@ inputs = {
   ami                = "ami-0abcdef1234567890"
   key_name           = "dev-key"
   security_group_ids = ["sg-123456"]
+
   tags = {
     Environment = "dev"
   }

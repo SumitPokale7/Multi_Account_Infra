@@ -17,7 +17,10 @@ inputs = {
     { cidr = "10.102.21.0/24", az = "us-east-2a" },  # TGW Attachment
     { cidr = "10.102.22.0/24", az = "us-east-2b" },  # TGW Attachment
     { cidr = "10.102.31.0/24", az = "us-east-2a" },  # GWLB
-    { cidr = "10.102.32.0/24", az = "us-east-2b" }   # GWLB
+    { cidr = "10.102.32.0/24", az = "us-east-2b" },   # GWLB
+    { cidr = "10.4.0.0/24", az = "us-east-2a" },   # GWLB
+    { cidr = "10.4.1.0/24", az = "us-east-2b" }
+    
   ]
   
   create_igw = true
