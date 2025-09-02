@@ -1,18 +1,18 @@
 terraform {
-  source = "../../../modules/vpc"
+  source = "../../../../../modules/vpc"
 }
 
 inputs = {
   vpc_name = "Security_Inbound_VPC"
-  vpc_cidr = "10.101.0.0/16"
+  vpc_cidr = "10.2.0.0/16"
   
   private_subnets = [
-    { cidr = "10.101.1.0/24", az = "us-east-2a" },   # Network Firewall
-    { cidr = "10.101.2.0/24", az = "us-east-2b" },   # Network Firewall
-    { cidr = "10.101.11.0/24", az = "us-east-2a" },  # TGW Attachment
-    { cidr = "10.101.12.0/24", az = "us-east-2b" },  # TGW Attachment
-    { cidr = "10.101.21.0/24", az = "us-east-2a" },  # Inbound GWLB
-    { cidr = "10.101.22.0/24", az = "us-east-2b" }   # Inbound GWLB
+    { cidr = "10.101.11.0/24", az = "us-east-2a", purpose = "tgw"  },     # TGW Attachment
+    { cidr = "10.101.12.0/24", az = "us-east-2b", purpose = "tgw"  },     # TGW Attachment
+    { cidr = "10.101.22.0/24", az = "us-east-2b", purpose = "gwlb"  },    # Inbound GWLB
+    { cidr = "10.101.21.0/24", az = "us-east-2a", purpose = "gwlb"  },    # Inbound GWLB
+    { cidr = "10.101.1.0/24", az = "us-east-2a", purpose = "firewall" },  # Network Firewall
+    { cidr = "10.101.2.0/24", az = "us-east-2b", purpose = "firewall"  }, # Network Firewall
   ]
   
   attach_to_tgw = true
@@ -20,8 +20,9 @@ inputs = {
   
   common_tags = {
     Environment = "shared"
-    Account     = "firewall-admin"
+    ManagedBy   = "terraform"
     Project     = "Networking"
+    Account     = "firewall-admin"
     VPCType     = "SecurityInbound"
   }
 }

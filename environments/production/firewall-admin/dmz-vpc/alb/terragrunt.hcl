@@ -1,9 +1,9 @@
 include "root" {
-  path = find_in_parent_folders("root.hcl")
+  path = find_in_parent_folders("terragrunt.hcl")
 }
 
 terraform {
-  source = "../../../modules/alb"
+  source = "../../../../../modules/alb"
 }
 
 dependency "vpc" {
@@ -15,12 +15,16 @@ dependency "sg" {
 }
 
 inputs = {
-  name               = "dmz-alb"
-  vpc_id             = dependency.vpc.outputs.vpc_id
-  subnet_ids         = dependency.vpc.outputs.public_subnet_ids
-  security_group_ids = [dependency.sg.outputs.sg_ids.alb_sg]
+  internal           = false
+  target_group       = false
+
   listener_port      = 80
   listener_protocol  = "HTTP"
+  name               = "dmz-alb"
+  vpc_id             = dependency.vpc.outputs.vpc_id
+  security_group_ids = [dependency.sg.outputs.sg_ids.alb_sg]
+  subnet_ids         = dependency.vpc.outputs.public_subnet_ids
+
   tags = {
     Environment = "dmz"
   }

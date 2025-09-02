@@ -1,5 +1,3 @@
-# modules/vpc/outputs.tf
-
 # VPC Outputs
 output "vpc_id" {
   description = "ID of the VPC"
@@ -23,8 +21,14 @@ output "vpc_name" {
 
 # Subnet Outputs
 output "private_subnet_ids" {
-  description = "List of private subnet IDs"
-  value       = aws_subnet.private[*].id
+  description = "Map of private subnets by purpose"
+  value = {
+    tgw      = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "tgw"]
+    gwlb     = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "gwlb"]
+    gwlbe    = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "gwlbe"]
+    firewall = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "firewall"]
+    ssm_vpc_endpoint = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "ssm_vpc_endpoint"]
+  }
 }
 
 output "private_subnet_cidrs" {

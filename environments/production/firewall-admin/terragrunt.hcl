@@ -25,20 +25,20 @@ provider "aws" {
 EOF
 }
 
-# Assume role configuration (currently commented out)
+# Assume role configuration
 # assume_role {
 #   role_arn     = "arn:aws:iam::${local.account_id}:role/AWSAdministratorAccess"
 #   session_name = "terragrunt-deploy"
 # }
 
-include "root" {
-  path = find_in_parent_folders()
-}
+# include "root" {
+#   path = find_in_parent_folders()
+# }
 
-locals {
-  account_vars = {
-    account_id      = "337537076454"
-    account_name    = "firewall-admin"
-    assume_role_arn = "arn:aws:iam::337537076454:role/TerraformExecutionRole"
-  }
-}
+# locals {
+#   account_vars = {
+#     account_id      = "337537076454"
+#     account_name    = "firewall-admin"
+#     assume_role_arn = "arn:aws:iam::337537076454:role/TerraformExecutionRole"
+#   }
+# }

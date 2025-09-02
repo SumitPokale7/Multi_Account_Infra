@@ -28,8 +28,9 @@ variable "enable_dns_support" {
 variable "private_subnets" {
   description = "List of private subnet configurations"
   type = list(object({
-    cidr = string
-    az   = string
+    cidr    = string
+    az      = string
+    purpose = string
   }))
   default = []
 }

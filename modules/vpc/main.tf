@@ -1,3 +1,23 @@
+# Local values
+locals {
+  # Get unique AZs from private and database subnets for route table creation
+  private_azs = toset(concat(
+    [for subnet in var.private_subnets : subnet.az],
+    [for subnet in var.database_subnets : subnet.az]
+  ))
+  
+  # Create a map of NAT gateways by AZ for routing
+  nat_gateway_by_az = var.create_nat_gateway && length(var.public_subnets) > 0 ? {
+    for i, subnet in var.public_subnets : subnet.az => aws_nat_gateway.main[i].id
+  } : {}
+
+
+  tgw_subnet_ids = [
+    for s in aws_subnet.private : s.id
+    if s.tags["Purpose"] == "tgw"
+  ]
+}
+
 # Create VPC
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr
@@ -12,16 +32,18 @@ resource "aws_vpc" "main" {
 # Private Subnets
 resource "aws_subnet" "private" {
   count = length(var.private_subnets)
-  
+
   vpc_id            = aws_vpc.main.id
   availability_zone = var.private_subnets[count.index].az
   cidr_block        = var.private_subnets[count.index].cidr
-  
+
   tags = merge(var.common_tags, {
-    Type = "Private"
-    Name = "${var.vpc_name}-private-${var.private_subnets[count.index].az}"
+    Type    = "Private"
+    Purpose = var.private_subnets[count.index].purpose
+    Name    = "${var.vpc_name}-private-${var.private_subnets[count.index].purpose}-${var.private_subnets[count.index].az}"
   })
 }
+
 
 # Public Subnets
 resource "aws_subnet" "public" {
@@ -155,29 +177,17 @@ resource "aws_nat_gateway" "main" {
   depends_on = [aws_internet_gateway.main]
 }
 
+
+
 # Transit Gateway Attachment
 resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
   count = var.attach_to_tgw ? 1 : 0
   
-  subnet_ids = var.tgw_subnet_ids != null ? var.tgw_subnet_ids : aws_subnet.private[*].id
+  vpc_id             = aws_vpc.main.id
+  subnet_ids         = local.tgw_subnet_ids
   transit_gateway_id = var.transit_gateway_id
-  vpc_id         = aws_vpc.main.id
   
   tags = merge(var.common_tags, {
     Name = "${var.vpc_name}-tgw-attachment"
   })
-}
-
-# Local values
-locals {
-  # Get unique AZs from private and database subnets for route table creation
-  private_azs = toset(concat(
-    [for subnet in var.private_subnets : subnet.az],
-    [for subnet in var.database_subnets : subnet.az]
-  ))
-  
-  # Create a map of NAT gateways by AZ for routing
-  nat_gateway_by_az = var.create_nat_gateway && length(var.public_subnets) > 0 ? {
-    for i, subnet in var.public_subnets : subnet.az => aws_nat_gateway.main[i].id
-  } : {}
 }

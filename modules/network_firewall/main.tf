@@ -1,53 +1,127 @@
-# # ----------------------------
-# # Rule Groups
-# # ----------------------------
-# resource "aws_networkfirewall_rule_group" "this" {
-#   for_each = var.rule_groups
+# Rule Groups
+resource "aws_networkfirewall_rule_group" "this" {
+  for_each = var.rule_groups
 
-#   capacity = each.value.capacity
-#   name     = each.key
-#   type     = each.value.type
+  name        = each.key
+  type        = each.value.type
+  capacity    = each.value.capacity
+  description = "Rule group for ${each.key}"
 
-#   rule_group = jsonencode(each.value.rule_group)
+  rule_group {
+    rules_source {
+      stateless_rules_and_custom_actions {
+        
+        # Handle dynamic stateless rules
+        dynamic "stateless_rule" {
+          for_each = each.value.rule_group.rules_source.stateless_rules_and_custom_actions.stateless_rules
 
-#   tags = merge(var.tags, { Name = each.key })
-# }
+          content {
+            priority = stateless_rule.value.priority
 
-# # ----------------------------
-# # Firewall Policy
-# # ----------------------------
-# resource "aws_networkfirewall_firewall_policy" "this" {
-#   name = "${var.name}-policy"
+            rule_definition {
+              actions = stateless_rule.value.rule_definition.actions
 
-#   firewall_policy = {
-#     stateless_default_actions          = var.stateless_default_actions
-#     stateless_fragment_default_actions = var.stateless_fragment_default_actions
+              match_attributes {
+                protocols = lookup(stateless_rule.value.rule_definition.match_attributes, "protocols", [])
 
-#     stateful_rule_group_references = [
-#       for k, rg in aws_networkfirewall_rule_group.this :
-#       { resource_arn = rg.arn }
-#       if var.rule_groups[k].type == "STATEFUL"
-#     ]
+                dynamic "sources" {
+                  for_each = lookup(stateless_rule.value.rule_definition.match_attributes, "source", [])
 
-#     stateless_rule_group_references = [
-#       for k, rg in aws_networkfirewall_rule_group.this :
-#       { priority = var.rule_groups[k].priority, resource_arn = rg.arn }
-#       if var.rule_groups[k].type == "STATELESS"
-#     ]
-#   }
+                  content {
+                    address_definition = sources.value.address_definition
+                  }
+                }
 
-#   tags = merge(var.tags, { Name = "${var.name}-policy" })
-# }
+                dynamic "destinations" {
+                  for_each = lookup(stateless_rule.value.rule_definition.match_attributes, "destination", [])
 
-# # ----------------------------
-# # Network Firewall
-# # ----------------------------
-# resource "aws_networkfirewall_firewall" "this" {
-#   name                = var.name
-#   vpc_id              = var.vpc_id
-#   subnet_mappings     = [for subnet in var.subnet_ids : { subnet_id = subnet }]
-#   firewall_policy_arn = aws_networkfirewall_firewall_policy.this.arn
-#   delete_protection   = false
+                  content {
+                    address_definition = destinations.value.address_definition
+                  }
+                }
 
-#   tags = merge(var.tags, { Name = var.name })
-# }
+                dynamic "source_ports" {
+                  for_each = lookup(stateless_rule.value.rule_definition.match_attributes, "source_ports", [])
+
+                  content {
+                    from_port = source_ports.value.from_port
+                    to_port   = source_ports.value.to_port
+                  }
+                }
+
+                dynamic "destination_ports" {
+                  for_each = lookup(stateless_rule.value.rule_definition.match_attributes, "destination_ports", [])
+
+                  content {
+                    from_port = destination_ports.value.from_port
+                    to_port   = destination_ports.value.to_port
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  tags = merge(var.tags, { Name = each.key })
+}
+
+
+# Firewall Policy
+resource "aws_networkfirewall_firewall_policy" "this" {
+  name = "${var.name}-policy"
+
+  firewall_policy {
+    stateless_default_actions          = var.stateless_default_actions
+    stateless_fragment_default_actions = var.stateless_fragment_default_actions
+
+    # Add stateless rule group references
+    dynamic "stateless_rule_group_reference" {
+      for_each = {
+        for k, rg in aws_networkfirewall_rule_group.this :
+        k => {
+          priority     = var.rule_groups[k].priority
+          resource_arn = rg.arn
+        }
+        if var.rule_groups[k].type == "STATELESS"
+      }
+      content {
+        priority     = stateless_rule_group_reference.value.priority
+        resource_arn = stateless_rule_group_reference.value.resource_arn
+      }
+    }
+
+    # Add stateful rule group references
+    dynamic "stateful_rule_group_reference" {
+      for_each = {
+        for k, rg in aws_networkfirewall_rule_group.this :
+        k => {
+          resource_arn = rg.arn
+        }
+        if var.rule_groups[k].type == "STATEFUL"
+      }
+      content {
+        resource_arn = stateful_rule_group_reference.value.resource_arn
+      }
+    }
+  }
+  tags = merge(var.tags, { Name = "${var.name}-policy" })
+}
+
+# Network Firewall
+resource "aws_networkfirewall_firewall" "this" {
+  name                = var.name
+  vpc_id              = var.vpc_id
+  delete_protection   = false
+  firewall_policy_arn = aws_networkfirewall_firewall_policy.this.arn
+
+  dynamic "subnet_mapping" {
+    for_each = var.subnet_ids
+    content {
+      subnet_id = subnet_mapping.value
+    }
+  }
+
+  tags = merge(var.tags, { Name = var.name })
+}

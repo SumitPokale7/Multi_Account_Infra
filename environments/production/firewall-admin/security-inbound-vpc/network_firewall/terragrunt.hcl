@@ -8,6 +8,11 @@ terraform {
 
 dependency "vpc" {
   config_path = "../vpc"
+
+  mock_outputs = {
+    vpc_id = "vpc-mockapp2123"
+    workload_subnet_ids = ["subnet-work1a", "subnet-work1b", "subnet-work1c"]
+  }
 }
 
 inputs = {
@@ -49,5 +54,6 @@ inputs = {
 
   tags = {
     Environment = "security-inbound"
+    ManagedBy   = "terraform"
   }
 }
