@@ -20,32 +20,32 @@ resource "aws_ec2_transit_gateway" "main" {
 }
 
 # RAM Resource Share for cross-account sharing
-# resource "aws_ram_resource_share" "tgw" {
-#   count = var.enable_cross_account_sharing ? 1 : 0
+resource "aws_ram_resource_share" "tgw" {
+  count = var.enable_cross_account_sharing ? 1 : 0
   
-#   name                      = var.ram_share_name
-#   allow_external_principals = var.allow_external_principals
+  name                      = var.ram_share_name
+  allow_external_principals = var.allow_external_principals
   
-#   tags = merge(var.common_tags, {
-#     Name = var.ram_share_name
-#   })
-# }
+  tags = merge(var.common_tags, {
+    Name = var.ram_share_name
+  })
+}
 
-# # Associate TGW with RAM Resource Share
-# resource "aws_ram_resource_association" "tgw" {
-#   count = var.enable_cross_account_sharing ? 1 : 0
+# Associate TGW with RAM Resource Share
+resource "aws_ram_resource_association" "tgw" {
+  count = var.enable_cross_account_sharing ? 1 : 0
   
-#   resource_arn       = aws_ec2_transit_gateway.main.arn
-#   resource_share_arn = aws_ram_resource_share.tgw[0].arn
-# }
+  resource_arn       = aws_ec2_transit_gateway.main.arn
+  resource_share_arn = aws_ram_resource_share.tgw[0].arn
+}
 
-# # Invite external accounts to the resource share
-# resource "aws_ram_principal_association" "accounts" {
-#   count = var.enable_cross_account_sharing ? length(var.shared_account_ids) : 0
+# Invite external accounts to the resource share
+resource "aws_ram_principal_association" "accounts" {
+  count = var.enable_cross_account_sharing ? length(var.shared_account_ids) : 0
   
-#   principal          = var.shared_account_ids[count.index]
-#   resource_share_arn = aws_ram_resource_share.tgw[0].arn
-# }
+  principal          = var.shared_account_ids[count.index]
+  resource_share_arn = aws_ram_resource_share.tgw[0].arn
+}
 
 # CloudWatch Log Group for Flow Logs
 resource "aws_cloudwatch_log_group" "tgw_flow_logs" {

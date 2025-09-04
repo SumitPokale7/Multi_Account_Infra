@@ -35,8 +35,7 @@ resource "aws_lb_target_group" "gwlb" {
     healthy_threshold   = var.healthy_threshold
     unhealthy_threshold = var.unhealthy_threshold
     interval            = var.health_check_interval
-    matcher             = var.health_check_matcher
-    path                = var.health_check_path
+    path                = var.health_check_protocol == "HTTP" || var.health_check_protocol == "HTTPS" ? var.health_check_path : null
     port                = var.health_check_port
     protocol            = var.health_check_protocol
     timeout             = var.health_check_timeout
@@ -71,7 +70,7 @@ resource "aws_lb_target_group_attachment" "gwlb" {
   port             = var.target_group_port
 }
 
-# VPC Endpoint Service (optional)
+# VPC Endpoint Service
 resource "aws_vpc_endpoint_service" "gwlb" {
   count = var.create_endpoint_service ? 1 : 0
 

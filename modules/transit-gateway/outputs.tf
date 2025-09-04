@@ -25,15 +25,15 @@ output "transit_gateway_propagation_default_route_table_id" {
   value       = aws_ec2_transit_gateway.main.propagation_default_route_table_id
 }
 
-# output "ram_resource_share_id" {
-#   description = "ID of the RAM resource share"
-#   value       = var.enable_cross_account_sharing ? aws_ram_resource_share.tgw[0].id : null
-# }
+output "ram_resource_share_id" {
+  description = "ID of the RAM resource share"
+  value       = var.enable_cross_account_sharing ? aws_ram_resource_share.tgw[0].id : null
+}
 
-# output "ram_resource_share_arn" {
-#   description = "ARN of the RAM resource share"
-#   value       = var.enable_cross_account_sharing ? aws_ram_resource_share.tgw[0].arn : null
-# }
+output "ram_resource_share_arn" {
+  description = "ARN of the RAM resource share"
+  value       = var.enable_cross_account_sharing ? aws_ram_resource_share.tgw[0].arn : null
+}
 
 output "flow_logs_log_group_name" {
   description = "Name of the CloudWatch log group for flow logs"

@@ -24,6 +24,7 @@ output "private_subnet_ids" {
   description = "Map of private subnets by purpose"
   value = {
     tgw      = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "tgw"]
+    nat      = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "nat"]
     gwlb     = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "gwlb"]
     gwlbe    = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "gwlbe"]
     firewall = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "firewall"]

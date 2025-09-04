@@ -1,6 +1,3 @@
-# modules/vpc/variables.tf
-# Variables for single VPC per Terragrunt file approach
-
 # VPC Configuration
 variable "vpc_name" {
   description = "Name for the VPC"

@@ -10,8 +10,7 @@ resource "aws_networkfirewall_rule_group" "this" {
   rule_group {
     rules_source {
       stateless_rules_and_custom_actions {
-        
-        # Handle dynamic stateless rules
+
         dynamic "stateless_rule" {
           for_each = each.value.rule_group.rules_source.stateless_rules_and_custom_actions.stateless_rules
 
@@ -24,49 +23,46 @@ resource "aws_networkfirewall_rule_group" "this" {
               match_attributes {
                 protocols = lookup(stateless_rule.value.rule_definition.match_attributes, "protocols", [])
 
-                dynamic "sources" {
+                dynamic "source" {
                   for_each = lookup(stateless_rule.value.rule_definition.match_attributes, "source", [])
-
                   content {
-                    address_definition = sources.value.address_definition
+                    address_definition = source.value.address_definition
                   }
                 }
 
-                dynamic "destinations" {
+                dynamic "destination" {
                   for_each = lookup(stateless_rule.value.rule_definition.match_attributes, "destination", [])
-
                   content {
-                    address_definition = destinations.value.address_definition
+                    address_definition = destination.value.address_definition
                   }
                 }
 
-                dynamic "source_ports" {
+                dynamic "source_port" {
                   for_each = lookup(stateless_rule.value.rule_definition.match_attributes, "source_ports", [])
-
                   content {
-                    from_port = source_ports.value.from_port
-                    to_port   = source_ports.value.to_port
+                    from_port = source_port.value.from_port
+                    to_port   = source_port.value.to_port
                   }
                 }
 
-                dynamic "destination_ports" {
+                dynamic "destination_port" {
                   for_each = lookup(stateless_rule.value.rule_definition.match_attributes, "destination_ports", [])
-
                   content {
-                    from_port = destination_ports.value.from_port
-                    to_port   = destination_ports.value.to_port
+                    from_port = destination_port.value.from_port
+                    to_port   = destination_port.value.to_port
                   }
                 }
               }
             }
           }
         }
+
       }
     }
   }
+
   tags = merge(var.tags, { Name = each.key })
 }
-
 
 # Firewall Policy
 resource "aws_networkfirewall_firewall_policy" "this" {

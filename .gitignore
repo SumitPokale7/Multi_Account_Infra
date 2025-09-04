@@ -1,2 +1,8 @@
 .terraform/
 .terragrunt/
+
+# recursively ignore all .terragrunt files
+**/*.terragrunt
+**/*.terragrunt*
+**/*.terraform
+**/*.terraform*

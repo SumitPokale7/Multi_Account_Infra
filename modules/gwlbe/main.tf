@@ -1,67 +1,31 @@
-resource "aws_lb" "gwlb" {
-  name               = "${var.project_name}-gwlb"
-  load_balancer_type = "gateway"
+# Gateway Load Balancer Endpoint
+resource "aws_vpc_endpoint" "gwlbe" {
+  count = length(var.subnet_ids)
+
+  vpc_id              = var.vpc_id
+  service_name        = var.service_name
+  vpc_endpoint_type   = "GatewayLoadBalancer"
+  subnet_ids          = [var.subnet_ids[count.index]]
   
-  subnet_mapping {
-    subnet_id = var.subnet_ids[0]
-  }
-
-  dynamic "subnet_mapping" {
-    for_each = length(var.subnet_ids) > 1 ? slice(var.subnet_ids, 1, length(var.subnet_ids)) : []
-    content {
-      subnet_id = subnet_mapping.value
-    }
-  }
-
-  enable_deletion_protection = var.enable_deletion_protection
-
   tags = merge(var.tags, {
-    Name = "${var.project_name}-gwlb"
-    Type = "GatewayLoadBalancer"
+    Name = "${var.project_name}-gwlbe-${count.index + 1}"
+    Type = "GatewayLoadBalancerEndpoint"
   })
 }
 
-resource "aws_lb_target_group" "gwlb" {
-  name     = "${var.project_name}-gwlb-tg"
-  port     = var.target_group_port
-  protocol = "GENEVE"
-  vpc_id   = var.vpc_id
+# Route Table Associations for GWLBE
+resource "aws_route_table_association" "gwlbe" {
+  count = var.associate_route_tables ? length(var.route_table_ids) : 0
 
-  health_check {
-    enabled             = var.health_check_enabled
-    healthy_threshold   = var.healthy_threshold
-    unhealthy_threshold = var.unhealthy_threshold
-    interval            = var.health_check_interval
-    matcher             = var.health_check_matcher
-    path                = var.health_check_path
-    port                = var.health_check_port
-    protocol            = var.health_check_protocol
-    timeout             = var.health_check_timeout
-  }
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-gwlb-tg"
-    Type = "GatewayLoadBalancerTargetGroup"
-  })
+  subnet_id      = var.subnet_ids[count.index]
+  route_table_id = var.route_table_ids[count.index]
 }
 
-resource "aws_lb_listener" "gwlb" {
-  load_balancer_arn = aws_lb.gwlb.arn
+# Routes pointing to GWLBE
+resource "aws_route" "to_gwlbe" {
+  count = var.create_routes ? length(var.route_configs) : 0
 
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.gwlb.arn
-  }
-
-  tags = merge(var.tags, {
-    Name = "${var.project_name}-gwlb-listener"
-  })
-}
-
-resource "aws_lb_target_group_attachment" "gwlb" {
-  count = length(var.target_ids)
-
-  target_group_arn = aws_lb_target_group.gwlb.arn
-  target_id        = var.target_ids[count.index]
-  port             = var.target_group_port
+  route_table_id         = var.route_configs[count.index].route_table_id
+  destination_cidr_block = var.route_configs[count.index].destination_cidr
+  vpc_endpoint_id        = aws_vpc_endpoint.gwlbe[var.route_configs[count.index].gwlbe_index].id
 }

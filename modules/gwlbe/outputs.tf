@@ -1,41 +1,25 @@
-# modules/gwlb/outputs.tf
-
-output "gwlb_id" {
-  description = "ID of the Gateway Load Balancer"
-  value       = aws_lb.gwlb.id
+output "gwlbe_ids" {
+  description = "List of Gateway Load Balancer Endpoint IDs"
+  value       = aws_vpc_endpoint.gwlbe[*].id
 }
 
-output "gwlb_arn" {
-  description = "ARN of the Gateway Load Balancer"
-  value       = aws_lb.gwlb.arn
+output "gwlbe_dns_names" {
+  description = "List of Gateway Load Balancer Endpoint DNS names"
+  value       = [for endpoint in aws_vpc_endpoint.gwlbe : 
+                 try(endpoint.dns_entry[0].dns_name, "")]
 }
 
-output "gwlb_dns_name" {
-  description = "DNS name of the Gateway Load Balancer"
-  value       = aws_lb.gwlb.dns_name
+output "gwlbe_network_interface_ids" {
+  description = "List of Gateway Load Balancer Endpoint network interface IDs"
+  value       = aws_vpc_endpoint.gwlbe[*].network_interface_ids
 }
 
-output "gwlb_zone_id" {
-  description = "Hosted zone ID of the Gateway Load Balancer"
-  value       = aws_lb.gwlb.zone_id
+output "gwlbe_subnet_ids" {
+  description = "List of subnet IDs where GWLBEs are deployed"
+  value       = var.subnet_ids
 }
 
-output "target_group_arn" {
-  description = "ARN of the Target Group"
-  value       = aws_lb_target_group.gwlb.arn
-}
-
-output "target_group_id" {
-  description = "ID of the Target Group"
-  value       = aws_lb_target_group.gwlb.id
-}
-
-output "listener_arn" {
-  description = "ARN of the Gateway Load Balancer Listener"
-  value       = aws_lb_listener.gwlb.arn
-}
-
-output "listener_id" {
-  description = "ID of the Gateway Load Balancer Listener"
-  value       = aws_lb_listener.gwlb.id
+output "gwlbe_dns_entries" {
+  description = "Complete DNS entry information for all GWLBEs"
+  value       = aws_vpc_endpoint.gwlbe[*].dns_entry
 }

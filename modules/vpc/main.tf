@@ -177,8 +177,6 @@ resource "aws_nat_gateway" "main" {
   depends_on = [aws_internet_gateway.main]
 }
 
-
-
 # Transit Gateway Attachment
 resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
   count = var.attach_to_tgw ? 1 : 0
