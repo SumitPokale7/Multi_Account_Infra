@@ -1,9 +1,8 @@
 # Local values
 locals {
-  # Get unique AZs from private and database subnets for route table creation
+  # Get unique AZs from private for route table creation
   private_azs = toset(concat(
-    [for subnet in var.private_subnets : subnet.az],
-    [for subnet in var.database_subnets : subnet.az]
+    [for subnet in var.private_subnets : subnet.az]
   ))
   
   # Create a map of NAT gateways by AZ for routing
@@ -76,20 +75,6 @@ resource "aws_subnet" "public" {
   })
 }
 
-# Database Subnets
-resource "aws_subnet" "database" {
-  count = length(var.database_subnets) > 0 ? length(var.database_subnets) : 0
-  
-  vpc_id            = aws_vpc.main.id
-  availability_zone = var.database_subnets[count.index].az
-  cidr_block        = var.database_subnets[count.index].cidr
-  
-  tags = merge(var.common_tags, {
-    Type = "Database"
-    Name = "${var.vpc_name}-db-${var.database_subnets[count.index].az}"
-  })
-}
-
 # Internet Gateway
 resource "aws_internet_gateway" "main" {
   count = var.create_igw && length(var.public_subnets) > 0 ? 1 : 0
@@ -156,14 +141,6 @@ resource "aws_route_table_association" "private" {
   
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private[var.private_subnets[count.index].az].id
-}
-
-# Route Table Associations for Database Subnets
-resource "aws_route_table_association" "database" {
-  count = length(var.database_subnets) > 0 ? length(var.database_subnets) : 0
-  
-  subnet_id      = aws_subnet.database[count.index].id
-  route_table_id = aws_route_table.private[var.database_subnets[count.index].az].id
 }
 
 # NAT Gateway EIPs

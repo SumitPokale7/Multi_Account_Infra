@@ -41,15 +41,6 @@ variable "public_subnets" {
   default = []
 }
 
-variable "database_subnets" {
-  description = "List of database subnet configurations"
-  type = list(object({
-    cidr = string
-    az   = string
-  }))
-  default = []
-}
-
 # Gateway Configuration
 variable "create_igw" {
   description = "Whether to create an Internet Gateway"

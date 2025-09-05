@@ -49,16 +49,6 @@ output "public_subnet_cidrs" {
   value       = aws_subnet.public[*].cidr_block
 }
 
-output "database_subnet_ids" {
-  description = "List of database subnet IDs"
-  value       = aws_subnet.database[*].id
-}
-
-output "database_subnet_cidrs" {
-  description = "List of database subnet CIDR blocks"
-  value       = aws_subnet.database[*].cidr_block
-}
-
 # Subnets grouped by AZ
 output "private_subnets_by_az" {
   description = "Map of private subnets by availability zone"
@@ -123,7 +113,6 @@ output "vpc_summary" {
     subnet_counts = {
       private  = length(aws_subnet.private)
       public   = length(aws_subnet.public)
-      database = length(aws_subnet.database)
     }
     
     gateways = {
@@ -134,8 +123,7 @@ output "vpc_summary" {
     
     availability_zones = distinct(concat(
       [for s in var.private_subnets : s.az],
-      [for s in var.public_subnets : s.az],
-      [for s in var.database_subnets : s.az]
+      [for s in var.public_subnets : s.az]
     ))
   }
 }
