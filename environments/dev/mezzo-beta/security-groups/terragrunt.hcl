@@ -11,8 +11,9 @@ dependency "vpc" {
 }
 
 inputs = {
+  security_group_name = "mezzp-beta"
   vpc_id              = dependency.vpc.outputs.vpc_id
-  security_group_name = "mezzo_eval"  
+
   security_groups = {
     rds-sg = {
       ingress = [

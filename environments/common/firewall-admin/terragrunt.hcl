@@ -5,11 +5,11 @@ terragrunt_version_constraint = "= 0.86.1"
 # remote_state {
 #   backend = "s3"
 #   config = {
+#     encrypt        = true
+#     region         = "us-east-1"
+#     dynamodb_table = "test-lock-table"
 #     bucket         = "test-terraform-state"
 #     key            = "${path_relative_to_include()}/terraform.tfstate"
-#     region         = "us-east-1"
-#     encrypt        = true
-#     dynamodb_table = "test-lock-table"
 #   }
 # }
 
@@ -27,21 +27,12 @@ EOF
 
 locals {
   region = "us-east-2"
+  #   account_id      = "337537076454"
+  #   account_name    = "FireWall-Admin"
 }
 
 # Assume role configuration
 # assume_role {
-#   role_arn     = "arn:aws:iam::${local.account_id}:role/AWSAdministratorAccess"
-#   session_name = "terragrunt-deploy"
+#   session_name = "terraform-deploy"
+#   role_arn     = "arn:aws:iam::${local.account_id}:role/TerraformExecutionRole"
 # }
-
-# include "root" {
-#   path = find_in_parent_folders()
-# }
-
-
-  # account_vars = {
-  #   account_id      = "337537076454"
-  #   account_name    = "firewall-admin"
-  #   assume_role_arn = "arn:aws:iam::337537076454:role/TerraformExecutionRole"
-  # }

@@ -1,30 +1,45 @@
+# terragrunt.hcl
 include "root" {
-  path = find_in_parent_folders()
+  path = find_in_parent_folders("terragrunt.hcl")
 }
 
 terraform {
-  source = "../../../modules/ec2"
+  source = "../../../../modules/ec2"
 }
 
 dependency "vpc" {
   config_path = "../vpc"
 }
 
-inputs = {
-  ami                = "ami-0abcdef1234567890"
-  key_name           = "dev-key"
-  security_group_ids = ["sg-123456"]
+dependency "security_groups" {
+  config_path = "../security-groups"
+}
 
-  tags = {
-    Environment = "dev"
-  }
+inputs = {
+  key_name           = "mezzo-eval-dev-key"
+  ami                = "ami-0b016c703b95ecbe4"
+
+  project            = "mezzo-eval"
 
   instances = [
     {
-      name          = "small-1"
-      instance_type = "t2.micro"
-      subnet_id     = dependency.vpc.outputs.public_subnet_ids[0]
-    }
+      instance_type       = "t2.micro"
+      name                = "mezzo-eval-1"
+      subnet_id           = dependency.vpc.outputs.private_subnet_ids["app"][0]
+      security_group_ids  = [dependency.security_groups.outputs.sg_ids["ec2-sg"]]
+    },
+    {
+      instance_type       = "t2.micro"
+      name                = "mezzo-eval-2"
+      subnet_id           = dependency.vpc.outputs.private_subnet_ids["app"][1]
+      security_group_ids  = [dependency.security_groups.outputs.sg_ids["ec2-sg"]]
+    },
   ]
-}
 
+  tags = {
+    Environment = "dev"
+    Account     = "mezzo-eval"
+    Project     = "mezzo"
+    ManagedBy   = "terraform"
+  }
+}

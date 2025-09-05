@@ -23,6 +23,8 @@ output "vpc_name" {
 output "private_subnet_ids" {
   description = "Map of private subnets by purpose"
   value = {
+    db       = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "db"]
+    app      = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "app"]
     tgw      = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "tgw"]
     nat      = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "nat"]
     gwlb     = [for s in aws_subnet.private : s.id if s.tags["Purpose"] == "gwlb"]

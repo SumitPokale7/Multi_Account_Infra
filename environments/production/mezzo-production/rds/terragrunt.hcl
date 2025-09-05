@@ -1,38 +1,58 @@
 include "root" {
-  path = find_in_parent_folders()
+  path = find_in_parent_folders("terragrunt.hcl")
 }
 
 terraform {
-  source = "../../../modules/rds"
+  source = "../../../../modules/rds"
 }
 
 dependency "vpc" {
   config_path = "../vpc"
+  
+  mock_outputs = {
+    private_subnet_ids = {
+      db = ["subnet-12345", "subnet-67890"]
+    }
+  }
 }
 
 dependency "sg" {
   config_path = "../security-groups"
+  
+  mock_outputs = {
+    sg_ids = {
+      rds = "sg-12345"
+    }
+  }
 }
 
 inputs = {
-  name                   = "account-db"
-  engine                 = "mysql"
-  engine_version         = "8.0"
-  instance_class         = "db.t3.medium"
-  allocated_storage      = 20
-  max_allocated_storage  = 100
-  storage_type           = "gp3"
-  username               = "admin"
-  password               = "SuperSecretPass123!"
+  # Cluster Configuration
+  create_rds_cluster     = false  # Set to true when need to create cluster
   
-  # ✅ Dynamically pull DB subnets from the VPC module
-  subnet_ids             = dependency.vpc.outputs.db_private_subnet_ids
-
-  # ✅ Attach SGs created by the SG module
-  vpc_security_group_ids = [dependency.sg.outputs.db_sg_id]
+  # Database Configuration
+  username               = "admin"
+  engine                 = "aurora-mysql"
+  name                   = "mezzo-prod-db"
+  password               = "SecretPass123!"
+  engine_version         = "5.7.mysql_aurora.2.11.0"
+  
+  # Instance Configuration
+  instance_count         = 2
+  instance_class         = "db.t3.medium"
+  
+  # Network Configuration
+  vpc_security_group_ids = values(dependency.sg.outputs.sg_ids)
+  subnet_ids             = dependency.vpc.outputs.private_subnet_ids["db"]
+  
+  # Backup Configuration
+  backup_retention_period = 7
+  skip_final_snapshot     = true
 
   tags = {
-    Environment = "dev"
-    Account     = "MezzoEval"
+    Environment = "Prod"
+    Project     = "mezzo-prod"
+    ManagedBy   = "terraform"
+    Account     = "Application-Workload-PROD-Account"
   }
 }

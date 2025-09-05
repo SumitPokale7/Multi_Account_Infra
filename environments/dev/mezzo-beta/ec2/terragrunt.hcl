@@ -16,35 +16,29 @@ dependency "security_groups" {
 }
 
 inputs = {
-  key_name           = "teamcity-dev-key"
+  key_name           = "mezzo-beta-dev-key"
   ami                = "ami-0b016c703b95ecbe4"
 
-  project            = "teamcity"
+  project            = "mezzo-beta"
 
   instances = [
     {
       instance_type       = "t2.micro"
-      name                = "teamcity-1"
-      subnet_id           = dependency.vpc.outputs.private_subnet_ids["tgw"][0]
+      name                = "mezzo-beta-1"
+      subnet_id           = dependency.vpc.outputs.private_subnet_ids["app"][0]
       security_group_ids  = [dependency.security_groups.outputs.sg_ids["ec2-sg"]]
     },
     {
       instance_type       = "t2.micro"
-      name                = "teamcity-2"
-      subnet_id           = dependency.vpc.outputs.private_subnet_ids["tgw"][0]
+      name                = "mezzo-beta-2"
+      subnet_id           = dependency.vpc.outputs.private_subnet_ids["app"][1]
       security_group_ids  = [dependency.security_groups.outputs.sg_ids["ec2-sg"]]
     },
-    {
-      instance_type       = "t2.micro"
-      name                = "teamcity-3"
-      subnet_id           = dependency.vpc.outputs.private_subnet_ids["tgw"][0]
-      security_group_ids  = [dependency.security_groups.outputs.sg_ids["ec2-sg"]]
-    }
   ]
 
   tags = {
     Environment = "dev"
-    Account     = "teamcity"
+    Account     = "Mezzo-Beta"
     Project     = "mezzo"
     ManagedBy   = "terraform"
   }

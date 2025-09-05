@@ -11,8 +11,8 @@ dependency "vpc" {
 }
 
 inputs = {
-  vpc_id = dependency.vpc.outputs.vpc_id
-
+  security_group_name = "dmz"
+  vpc_id              = dependency.vpc.outputs.vpc_id
   security_groups = {
     alb_sg = {
       ingress = [

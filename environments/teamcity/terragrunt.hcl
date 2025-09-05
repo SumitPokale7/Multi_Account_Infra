@@ -20,15 +20,15 @@ generate "provider" {
   contents  = <<EOF
 provider "aws" {
   region  = "us-east-2"
-  profile = "sifi_network"
+  profile = "sifi_teamcity"
 }
 EOF
 }
 
 locals {
   region = "us-east-2"
-  #   account_name    = "Networking"
-  #   account_id      = "635566486216"
+  #   account_name    = "TeamCity"
+  #   account_id      = "206254861935"
 }
 
 # Assume role configuration

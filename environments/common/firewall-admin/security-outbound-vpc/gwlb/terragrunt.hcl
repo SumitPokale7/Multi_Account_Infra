@@ -34,7 +34,7 @@ inputs = {
   health_check_enabled     = true
   health_check_protocol    = "HTTP"
 
-  enable_deletion_protection           = true
+  enable_deletion_protection           = false
   create_endpoint_service              = true
   endpoint_service_acceptance_required = false
   

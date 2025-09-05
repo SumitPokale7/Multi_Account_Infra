@@ -15,23 +15,36 @@ dependency "tgw" {
 }
 
 inputs = {
-  vpc_cidr = "10.4.0.0/16"
+  vpc_cidr = "10.31.0.0/16"
   vpc_name = "Endpoints_VPC"
 
   private_subnets = [
-    { cidr = "10.4.0.0/24", az = "us-east-2a", purpose = "tgw" },
-    { cidr = "10.4.1.0/24", az = "us-east-2b", purpose = "tgw" },
-    { cidr = "10.4.2.0/24", az = "us-east-2a", purpose = "ssm_vpc_endpoint" },
-    { cidr = "10.4.3.0/24", az = "us-east-2b", purpose = "ssm_vpc_endpoint" }
+    { cidr = "10.31.1.0/24", az = "us-east-2a", purpose = "tgw" },
+    { cidr = "10.31.3.0/24", az = "us-east-2b", purpose = "tgw" },
+    { cidr = "10.31.2.0/24", az = "us-east-2a", purpose = "ssm_vpc_endpoint" },
+    { cidr = "10.31.4.0/24", az = "us-east-2b", purpose = "ssm_vpc_endpoint" }
   ]
 
   attach_to_tgw      = true
   transit_gateway_id = dependency.tgw.outputs.transit_gateway_id
+
+  tgw_routes = {
+    MezzoBeta        = "10.10.0.0/16"
+    MezzoEval        = "10.11.0.0/16"
+    SmartVMA         = "10.12.0.0/16"
+    FullAdv          = "10.20.0.0/16"
+    MezzoProd        = "10.21.0.0/16"
+    TeamCity         = "172.30.0.0/16"
+    DMZ              = "10.30.0.0/16"
+    SecurityInbound  = "10.32.0.0/16"
+    SecurityOutbound = "10.33.0.0/16"
+    OutBound         = "0.0.0.0/0"
+  }
   
   common_tags = {
-    Environment = "prod"
-    VPCType     = "Endpoints"
-    Project     = "Networking"
-    Account     = "firewall-admin"
+    Environment = "common"
+    ManagedBy   = "terraform"
+    Owner       = "devops-team"
+    Project     = "endpoints-vpc"
   }
 }

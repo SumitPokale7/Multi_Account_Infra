@@ -82,11 +82,18 @@ variable "tgw_subnet_ids" {
   default     = null
 }
 
+variable "tgw_routes" {
+  type    = map(string)
+  default = {}
+}
+
 # Common Configuration
 variable "common_tags" {
   description = "Common tags to apply to all resources"
   type        = map(string)
-  default     = {}
+  default     = {
+    ManagedBy = "terraform"
+  }
 }
 
 variable "account_id" {

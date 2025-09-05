@@ -11,10 +11,10 @@ dependency "vpc" {
 }
 
 inputs = {
-  vpc_id = dependency.vpc.outputs.vpc_id
-
+  vpc_id               = dependency.vpc.outputs.vpc_id
+  security_group_name  = "endpoints_vpc"
   security_groups = {
-    endpoints_vpc_ssm_sg = {
+    ssm_sg = {
       ingress = [
         { from_port = 443, to_port = 443, protocol = "tcp", cidr_blocks = [dependency.vpc.outputs.vpc_cidr_block] }
       ]

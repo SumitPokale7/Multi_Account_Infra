@@ -33,7 +33,7 @@ inputs = {
   # Database Configuration
   username               = "admin"
   engine                 = "aurora-mysql"
-  name                   = "mezzo-eval-db"
+  name                   = "mezzo-beta-db"
   password               = "SecretPass123!"
   engine_version         = "5.7.mysql_aurora.2.11.0"
   
@@ -51,7 +51,7 @@ inputs = {
 
   tags = {
     Environment = "dev"
-    Account     = "mezzo-eval"
+    Account     = "Mezzo-Beta"
     Project     = "mezzo"
     ManagedBy   = "terraform"
   }

@@ -16,6 +16,22 @@ locals {
     for s in aws_subnet.private : s.id
     if s.tags["Purpose"] == "tgw"
   ]
+
+  private_route_tables = {
+    for az, rt in aws_route_table.private : az => rt.id
+  }
+  # Get unique AZs from private subnets
+  unique_azs = toset([for subnet in var.private_subnets : subnet.az])
+  
+  # Create a map that combines each unique AZ with each TGW route
+  tgw_route_combinations = var.attach_to_tgw ? {
+    for combo in setproduct(tolist(local.unique_azs), keys(var.tgw_routes)) :
+    "${combo[0]}-${combo[1]}" => {
+      az         = combo[0]
+      route_name = combo[1]
+      cidr       = var.tgw_routes[combo[1]]
+    }
+  } : {}
 }
 
 # Create VPC
@@ -113,7 +129,7 @@ resource "aws_route_table" "private" {
   
   # Add NAT Gateway route if NAT exists for this AZ
   dynamic "route" {
-    for_each = lookup(local.nat_gateway_by_az, each.key, null) != null ? [1] : []
+    for_each = lookup(local.nat_gateway_by_az, each.key, null) != null ?  [1] : []
     content {
       cidr_block     = "0.0.0.0/0"
       nat_gateway_id = local.nat_gateway_by_az[each.key]
@@ -188,4 +204,12 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
   tags = merge(var.common_tags, {
     Name = "${var.vpc_name}-tgw-attachment"
   })
+}
+
+resource "aws_route" "to_tgw" {
+  for_each = local.tgw_route_combinations
+  
+  destination_cidr_block = each.value.cidr
+  transit_gateway_id     = var.transit_gateway_id
+  route_table_id         = aws_route_table.private[each.value.az].id
 }
