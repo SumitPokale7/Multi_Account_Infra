@@ -183,10 +183,34 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "main" {
   })
 }
 
+resource "time_sleep" "wait_for_tgw_attachment" {
+  depends_on = [aws_ec2_transit_gateway_vpc_attachment.main]
+
+  # wait a bit for AWS to switch to 'pendingAcceptance'
+  create_duration = "30s"
+}
+
+resource "aws_ec2_transit_gateway_vpc_attachment_accepter" "this" {
+  provider  = aws.networking_account
+  count     = var.attach_to_tgw ? 1 : 0
+
+  transit_gateway_default_route_table_association = false
+  transit_gateway_default_route_table_propagation = false
+  transit_gateway_attachment_id                   = aws_ec2_transit_gateway_vpc_attachment.main[count.index].id
+
+  tags = merge(var.common_tags, {
+    Name = "${var.vpc_name}-tgw-attachment-accepter"
+  })
+
+  depends_on = [ aws_ec2_transit_gateway_vpc_attachment.main ]
+}
+
 resource "aws_route" "to_tgw" {
   for_each = local.tgw_route_combinations
   
   destination_cidr_block = each.value.cidr
   transit_gateway_id     = var.transit_gateway_id
   route_table_id         = aws_route_table.private[each.value.az].id
+
+  depends_on = [ aws_ec2_transit_gateway_vpc_attachment.main ]
 }

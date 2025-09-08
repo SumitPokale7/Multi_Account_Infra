@@ -1,5 +1,5 @@
 include "root" {
-  path = find_in_parent_folders("terragrunt.hcl")
+  path = find_in_parent_folders("root.hcl")
 }
 
 terraform {
@@ -11,8 +11,9 @@ dependency "vpc" {
 }
 
 inputs = {
-  vpc_id              = dependency.vpc.outputs.vpc_id
   security_group_name = "FullAdv"  
+  vpc_id              = dependency.vpc.outputs.vpc_id
+
   security_groups = {
     rds-sg = {
       ingress = [
