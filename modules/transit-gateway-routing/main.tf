@@ -1,6 +1,11 @@
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 resource "aws_ec2_transit_gateway_route_table" "this" {
-  for_each           = var.route_tables
   transit_gateway_id = var.tgw_id
+  for_each           = var.route_tables
+
   tags = {
     Name = each.value.name
   }

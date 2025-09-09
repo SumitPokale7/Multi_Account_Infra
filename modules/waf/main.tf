@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 locals {
   is_allow = var.default_action == "allow"
 }

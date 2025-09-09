@@ -17,10 +17,10 @@ remote_state {
     key            = "teamcity/${path_relative_to_include()}/terraform.tfstate"
     
     # Cross-account access
-    # role_arn = "arn:aws:iam::635566486216:role/TerraformStateExecutionRole"
+    role_arn = "arn:aws:iam::635566486216:role/TerraformStateExecutionRole"
     
     # If using profiles
-    profile = "sifi_network"
+    # profile = "sifi_network"
   }
   
   generate = {
@@ -35,7 +35,12 @@ generate "provider" {
   contents  = <<EOF
 provider "aws" {
   region  = "us-east-2"
-  profile = "sifi_teamcity"
+  # profile = "sifi_teamcity"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::${local.account_id}:role/TerraformExecutionRole"
+    session_name = "TerraformExecution"
+  }
 }
 EOF
 }

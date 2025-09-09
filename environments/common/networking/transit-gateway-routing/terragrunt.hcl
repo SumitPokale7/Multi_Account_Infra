@@ -3,7 +3,7 @@ terraform {
 }
 
 include "root" {
-  path = find_in_parent_folders("terragrunt.hcl")
+  path = find_in_parent_folders("root.hcl")
 }
 
 dependency "tgw" {
@@ -17,45 +17,85 @@ dependency "tgw" {
 # Firewall Admin
 dependency "dmz_tgw_attachments" {
   config_path = "../../firewall-admin/dmz-vpc/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 dependency "endpoints_tgw_attachments" {
   config_path = "../../firewall-admin/endpoints-vpc/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 dependency "security_inbound_tgw_attachments" {
   config_path = "../../firewall-admin/security-inbound-vpc/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 dependency "security_outbound_tgw_attachments" {
   config_path = "../../firewall-admin/security-outbound-vpc/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 # Dev 
 dependency "mezzo_beta_tgw_attachments" {
   config_path = "../../../dev/mezzo-beta/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 dependency "mezzo_eval_tgw_attachments" {
   config_path = "../../../dev/mezzo-eval/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 dependency "smartvma_eval_tgw_attachments" {
   config_path = "../../../dev/smartvma-eval/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 # Production
 dependency "fulladv_prod_tgw_attachments" {
   config_path = "../../../production/fulladv-production/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 dependency "mezzo_prod_tgw_attachments" {
   config_path = "../../../production/mezzo-production/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 # Teamcity
 dependency "teamcity_tgw_attachments" {
   config_path = "../../../teamcity/teamcity/vpc"
+
+  mock_outputs = {
+    tgw_attachment_id = "mock-endpoints_tgw_attachments-output"
+  }
 }
 
 inputs = {

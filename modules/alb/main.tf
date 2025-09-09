@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 resource "aws_lb" "this" {
   name               = var.name
   internal           = var.internal

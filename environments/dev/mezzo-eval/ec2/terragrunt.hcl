@@ -9,10 +9,23 @@ terraform {
 
 dependency "vpc" {
   config_path = "../vpc"
+
+  mock_outputs = {
+    vpc_id             = "mock-vpc-output"
+    private_subnet_ids = {
+      app = ["subnet-12345", "subnet-67890"]
+    }
+  }
 }
 
 dependency "security_groups" {
   config_path = "../security-groups"
+
+  mock_outputs = {
+    sg_ids = {
+      ec2-sg = "mock-security_groups-output"
+    }
+  }
 }
 
 inputs = {

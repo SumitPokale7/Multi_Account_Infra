@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 # Gateway Load Balancer Endpoint
 resource "aws_vpc_endpoint" "gwlbe" {
   count = length(var.subnet_ids)

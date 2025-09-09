@@ -1,5 +1,5 @@
 include "root" {
-  path = find_in_parent_folders("terragrunt.hcl")
+  path = find_in_parent_folders("root.hcl")
 }
 
 terraform {
@@ -8,14 +8,27 @@ terraform {
 
 dependency "vpc" {
   config_path = "../vpc"
+
+  mock_outputs = {
+    vpc_id             = "mock-vpc-output"
+    private_subnet_ids = {
+      ssm_vpc_endpoint = ["subnet-12345", "subnet-67890"]
+    }
+  }
 }
 
 dependency "sg" {
   config_path = "../security-groups"
+
+  mock_outputs = {
+    sg_ids = {
+      ssm_sg = "mock-security_groups-output"
+    }
+  }
 }
 
 locals {
-  root_config = read_terragrunt_config(find_in_parent_folders("terragrunt.hcl"))
+  root_config = read_terragrunt_config(find_in_parent_folders("root.hcl"))
   region      = local.root_config.locals.region
 }
 

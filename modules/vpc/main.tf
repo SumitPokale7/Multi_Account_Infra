@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 # Local values
 locals {
   # Get unique AZs from private for route table creation

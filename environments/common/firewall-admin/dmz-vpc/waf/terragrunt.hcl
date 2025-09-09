@@ -1,5 +1,5 @@
 include "root" {
-  path = find_in_parent_folders("terragrunt.hcl")
+  path = find_in_parent_folders("root.hcl")
 }
 
 terraform {
@@ -8,11 +8,14 @@ terraform {
 
 dependency "alb" {
   config_path = "../alb"
+
+  mock_outputs = {
+    alb_arn = "mock_alb_arn"
+  }
 }
 
 inputs = {
-  # Common WAF settings
-  name = "dmz"
+  name               = "dmz"
   waf_default_action = "allow"
   
   waf_common_rules = [

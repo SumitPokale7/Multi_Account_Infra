@@ -3,8 +3,8 @@ terragrunt_version_constraint = "= 0.86.1"
 
 locals {
   region          = "us-east-2"
-  account_id      = "390259467653"
-  account_name    = "Application-Workload-DEV-Account"
+  account_id      = "635566486216"
+  account_name    = "Networking"
 }
 
 remote_state {
@@ -14,10 +14,10 @@ remote_state {
     region         = "us-east-2"
     dynamodb_table = "terraform-locks"  
     bucket         = "global-infra-state-us-east-2"
-    key            = "dev/${path_relative_to_include()}/terraform.tfstate"
+    key            = "common/networking/${path_relative_to_include()}/terraform.tfstate"
     
     # Cross-account access
-    role_arn = "arn:aws:iam::635566486216:role/TerraformStateExecutionRole"
+    role_arn = "arn:aws:iam::${local.account_id}:role/TerraformStateExecutionRole"
     
     # If using profiles
     # profile = "sifi_network"
@@ -35,7 +35,7 @@ generate "provider" {
   contents  = <<EOF
 provider "aws" {
   region  = "us-east-2"
-  # profile = "sifi_dev"
+  # profile = "sifi_network"
 
   assume_role {
     role_arn     = "arn:aws:iam::${local.account_id}:role/TerraformExecutionRole"

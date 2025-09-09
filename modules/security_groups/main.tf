@@ -1,9 +1,13 @@
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 resource "aws_security_group" "this" {
   for_each    = var.security_groups
 
-  name        = each.key
+  name        = "${var.security_group_name}-${each.key}"
   vpc_id      = var.vpc_id
-  description = "SG for ${each.key}"
+  description = "SG for ${var.security_group_name}-${each.key}"
 
   dynamic "ingress" {
     for_each = each.value.ingress

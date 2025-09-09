@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 # Rule Groups
 resource "aws_networkfirewall_rule_group" "this" {
   for_each = var.rule_groups

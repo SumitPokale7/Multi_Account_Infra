@@ -10,6 +10,7 @@ dependency "vpc" {
   config_path = "../vpc"
   
   mock_outputs = {
+    vpc_id            = "mock-vpc-output"
     private_subnet_ids = {
       db = ["subnet-12345", "subnet-67890"]
     }
@@ -21,7 +22,7 @@ dependency "sg" {
   
   mock_outputs = {
     sg_ids = {
-      rds = "sg-12345"
+      rds-sg = "mock-security_groups-output"
     }
   }
 }

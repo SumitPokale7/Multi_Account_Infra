@@ -8,6 +8,11 @@ terraform {
 
 dependency "vpc" {
   config_path = "../vpc"
+  
+  mock_outputs = {
+    vpc_id            = "mock-vpc-output"
+    vpc_cidr_block    = "0.0.0.0/0" 
+  }
 }
 
 inputs = {

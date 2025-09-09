@@ -3,7 +3,7 @@ terraform {
 }
 
 include "root" {
-  path = find_in_parent_folders("terragrunt.hcl")
+  path = find_in_parent_folders("root.hcl")
 }
 
 inputs = {
@@ -37,59 +37,3 @@ inputs = {
     Project     = "transit-gateway"
   }
 }
-
-# terraform {
-#   source = "../../../modules/transit-gateway-routing"
-# }
-
-# include "root" {
-#   path = find_in_parent_folders()
-# }
-
-# dependency "tgw" {
-#   config_path = "../transit-gateway"
-#   mock_outputs = {
-#     transit_gateway_id = "tgw-12345"
-#   }
-# }
-
-# inputs = {
-#   # Get TGW ID from dependency
-#   transit_gateway_id = dependency.tgw.outputs.transit_gateway_id
-
-#   # Create route tables for different environments
-#   create_security_route_table     = true
-#   create_production_route_table   = true
-#   create_development_route_table  = true
-
-#   # Route all traffic through security inspection
-#   route_production_through_security   = true
-#   route_development_through_security  = true
-#   route_internet_through_security     = true
-
-#   # Isolate environments from each other
-#   isolate_environments = true
-
-#   # CIDR definitions
-#   production_cidrs = [
-#     "10.1.0.0/16",
-#     "10.2.0.0/16",
-#   ]
-
-#   development_cidrs = [
-#     "10.10.0.0/16",
-#     "10.11.0.0/16",
-#   ]
-
-#   security_cidrs = [
-#     "10.100.0.0/16",
-#     "10.101.0.0/16",
-#   ]
-
-#   common_tags = {
-#     Environment   = "networking"
-#     Project       = "tgw-routing"
-#     Owner         = "networking-team"
-#   }
-# }
-

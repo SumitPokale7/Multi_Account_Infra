@@ -1,5 +1,5 @@
 include "root" {
-  path = find_in_parent_folders("terragrunt.hcl")
+  path = find_in_parent_folders("root.hcl")
 }
 
 terraform {
@@ -10,7 +10,10 @@ dependency "vpc" {
   config_path = "../vpc"
 
   mock_outputs = {
-    vpc_id = "vpc-mockapp2123"
+    vpc_id             = "mock-vpc-output"
+    private_subnet_ids = {
+      firewall = ["subnet-12345", "subnet-67890"]
+    }
   }
 }
 

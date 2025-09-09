@@ -1,4 +1,7 @@
-# modules/gwlb/main.tf
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 # Gateway Load Balancer
 resource "aws_lb" "gwlb" {
   name               = "${var.project_name}-gwlb"

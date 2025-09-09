@@ -1,42 +1,36 @@
+variable "project" {
+  description = "Project name"
+  type        = string
+}
+
+variable "store_private_key" {
+  description = "Whether to store private key in SSM Parameter Store"
+  type        = bool
+  default     = true
+}
+
 variable "ami" {
-  description = "AMI ID for the instance"
+  description = "AMI ID to use for instances"
+  type        = string
+}
+
+variable "key_name" {
+  description = "EC2 Key Pair name"
   type        = string
 }
 
 variable "instances" {
-  description = "List of EC2 instances to create with type and name"
+  description = "List of instance configurations"
   type = list(object({
-    name          = string
-    instance_type = string
-    subnet_id     = string
+    name                = string
+    instance_type       = string
+    subnet_id           = string
+    security_group_ids  = list(string)
   }))
 }
 
-variable "instance_count" {
-  description = "Number of EC2 instances to create"
-  type        = number
-  default     = 1
-}
-
-variable "security_group_ids" {
-  description = "List of security group IDs to associate"
-  type        = list(string)
-}
-
-variable "key_name" {
-  description = "Key pair name for SSH access"
-  type        = string
-  default     = null
-}
-
-variable "name_prefix" {
-  description = "Prefix for instance names"
-  type        = string
-  default     = "ec2"
-}
-
 variable "tags" {
-  description = "Additional tags to apply"
+  description = "Default tags to apply to all resources"
   type        = map(string)
   default     = {}
 }

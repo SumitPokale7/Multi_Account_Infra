@@ -1,3 +1,7 @@
+terraform {
+  required_version = ">= 1.9.7, < 1.10.0"
+}
+
 # using for_each for multiple services
 locals {
   ssm_services = var.create_ssm_endpoint_service ? [
