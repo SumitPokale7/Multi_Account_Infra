@@ -20,7 +20,7 @@ remote_state {
     role_arn = "arn:aws:iam::${local.account_id}:role/TerraformStateExecutionRole"
     
     # If using profiles
-    # profile = "sifi_network"
+    profile = "sifi_network"
   }
   
   generate = {
@@ -34,13 +34,13 @@ generate "provider" {
   if_exists = "overwrite"
   contents  = <<EOF
 provider "aws" {
-  region  = "us-east-2"
-  # profile = "sifi_network"
+  region  = "${local.region}"
+  profile = "sifi_network"
 
-  assume_role {
-    role_arn     = "arn:aws:iam::${local.account_id}:role/TerraformExecutionRole"
-    session_name = "TerraformExecution"
-  }
+  # assume_role {
+    # role_arn     = "arn:aws:iam::${local.account_id}:role/TerraformExecutionRole"
+    # session_name = "TerraformExecution"
+  # }
 }
 EOF
 }

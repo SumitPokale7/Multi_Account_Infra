@@ -1,63 +1,112 @@
-# Multi Account Infra
+This repository provides a **modular**, **multi-account** AWS infrastructure setup using **Terraform** and **Terragrunt**. It supports multiple environments—**dev**, **production**, and **teamcity**—with shared networking and security resources, following best practices for **scalable**, **secure**, and **maintainable** cloud architecture.
 
-This repository provides a modular, multi-account AWS infrastructure setup using Terraform and Terragrunt. It is designed to support multiple environments (dev, production, teamcity) and common networking/security resources, following best practices for scalable cloud architecture.
+---
 
-## Structure
+## 📁 Project Structure
 
-- **environments/**: Contains environment-specific configurations.
-  - `common/`: Shared resources (firewall, networking, organization accounts).
-  - `dev/`, `production/`, `teamcity/`: Account-specific infrastructure (VPCs, EC2, RDS, security groups).
-- **modules/**: Reusable Terraform modules for AWS resources (alb, ec2, gwlb, network_firewall, rds, security_groups, transit-gateway, vpc, waf, etc).
-- **Mutil_Account_Diagram.png**: Visual diagram of the multi-account architecture.
-- **.gitignore**: Standard git ignore file.
+```bash
+.
+├── environments/
+│   ├── common/        # Shared Accounts: networking, firewall-admin
+│   ├── dev/           # Development environment
+│   ├── production/    # Production environment
+│   └── teamcity/      # teamcity environment
+└── modules/           # Reusable Terraform modules for AWS resources
+```
 
-## Key Features
 
-- **Terragrunt**: Used for managing remote state, DRY configuration, and dependency management.
-- **Terraform Modules**: Each AWS resource is modularized for reuse and maintainability.
-- **Multi-Environment Support**: Easily deploy infrastructure for dev, production, and CI/CD (teamcity) environments.
-- **Security & Networking**: Includes modules for VPCs, security groups, firewalls, WAF, transit gateways, and endpoints.
+## Key Directories
+**environments/** – Contains Terragrunt HCL configurations per environment.
 
-## Getting Started
+**common/** – Shared networking/security modules.
 
-1. **Install Prerequisites**
-   - [Terraform](https://www.terraform.io/downloads.html)
-   - [Terragrunt](https://terragrunt.gruntwork.io/docs/getting-started/install/)
-   - AWS CLI & credentials
+**dev/, production/, teamcity/** – Account/environment-specific infrastructure.
 
-2. **Clone the Repository**
-   ```sh
-   git clone <repo-url>
-   cd Multi_Account_Infra
-   ```
+**modules/** – Terraform modules for AWS services such as: alb, ec2, gwlb, network_firewall, rds, security_groups, transit-gateway, vpc, waf, etc.
 
-3. **Configure AWS Credentials**
-   - Set up your AWS credentials as required for your environment.
+## Features
+- Terragrunt Integration Handles remote state, DRY configuration, and cross-module dependencies.
 
-4. **Deploy Infrastructure**
-   - Navigate to the desired environment folder (e.g., `environments/dev/mezzo-beta/vpc/`).
-   - Run Terragrunt:
-     ```sh
-     terragrunt init
-     terragrunt plan
-     terragrunt apply
-     ```
+- Modular Terraform Design Infrastructure code is organized into reusable and composable modules.
 
-## Folder Overview
+- Multi-Environment Support
+Easily deploy dev, production, and TeamCity environments in isolation.
 
-- `environments/common/`: Shared networking and security resources.
-- `environments/dev/`, `environments/production/`, `environments/teamcity/`: Environment-specific deployments.
-- `modules/`: Core Terraform modules for AWS resources.
+- Security & Networking First
 
-## Customization
+    - Built-in modules for:
+    
+    - VPCs & subnets
 
-- Modify variables in `variables.tf` within each module to suit your requirements.
-- Use Terragrunt HCL files to manage dependencies and remote state.
+    - AWS Network Firewall
 
-## Diagram
+    - Transit Gateway
 
-Refer to `Mutil_Account_Diagram.png` for a high-level overview of the architecture.
+    - WAF, endpoints, security groups
 
-## License
+🛠 Getting Started
+1. Install Prerequisites
+Make sure the following tools are installed:
 
-For more details, refer to the documentation in each environment/module folder and the architecture diagram.
+        Terraform v1.9.7
+        
+        Terragrunt v0.86.1
+        
+        AWS CLI
+
+2. You can authenticate Terraform to AWS either by assuming a role or by using a credentials profile.
+Use environment variables or ~/.aws/credentials:
+
+    ``` bash
+    export AWS_PROFILE=your-profile-name
+    ```
+
+3. Deploy Infrastructure
+Navigate to the desired environment directory, e.g.:
+
+    ```bash
+    cd environments/dev/mezzo-beta/
+    Run the following commands:
+    ```
+    ```bash
+    terragrunt plan --all
+    terragrunt apply --all
+    ```
+
+4. Or Navigate to the environments directory, e.g.:
+
+    ```bash
+    cd environments/
+    Run the following commands:
+    ```
+    ```bash
+    terragrunt plan --all
+    terragrunt apply --all
+    ```
+    It will Deploy All the resources one by one!
+
+## ⚙️ Customization
+- Edit variables.tf in each module to adjust defaults.
+
+- Use Terragrunt .hcl files to:
+    - Pass input variables
+
+    - Configure remote state backends
+
+    - Define dependencies between modules
+
+| Path                       | Description                                  |
+| -------------------------- | -------------------------------------------- |
+| `environments/common/`     | Shared infrastructure (networking, firewall) |
+| `environments/dev/`        | Development environment                      |
+| `environments/production/` | Production environment                       |
+| `environments/teamcity/`   | TeamCity environment |
+| `modules/`                 | Reusable Terraform modules for AWS resources |
+
+
+📌 Notes
+All environments are configured using Terragrunt's hierarchical structure for consistency and reuse.
+
+State is managed remotely per environment to avoid conflicts.
+
+Resource names follow environment-specific naming conventions to ensure isolation.

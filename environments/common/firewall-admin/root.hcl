@@ -15,14 +15,14 @@ remote_state {
     dynamodb_table = "terraform-locks"  
     bucket         = "global-infra-state-us-east-2"
     key            = "common/firewall-admin/${path_relative_to_include()}/terraform.tfstate"
-    
+
     # Cross-account access
     role_arn = "arn:aws:iam::635566486216:role/TerraformStateExecutionRole"
-    
+
     # If using profiles
     # profile = "sifi_network"
   }
-  
+
   generate = {
     path      = "backend.tf"
     if_exists = "overwrite_terragrunt"
@@ -35,7 +35,7 @@ generate "provider" {
   contents  = <<EOF
 provider "aws" {
   region  = "us-east-2"
-  # profile = "sifi_firewall"
+  profile = "sifi_firewall"
 
   assume_role {
     role_arn     = "arn:aws:iam::${local.account_id}:role/TerraformExecutionRole"
