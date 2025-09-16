@@ -6,10 +6,17 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   terragrunt:
     name: Terragrunt Plan/Apply
     runs-on: ubuntu-latest
+    env:
+      TERRAGRUNT_NON_INTERACTIVE: "true"  # disables all Terragrunt prompts (y/n, dependencies, etc.)
+      TF_INPUT: "false"                   # disables Terraform input prompts
 
     steps:
       - name: Checkout
@@ -27,6 +34,9 @@ jobs:
           chmod +x terragrunt_linux_amd64
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
 
+      - name: Make cleanup script executable
+        run: chmod +x ./cleanup_terraform_current_dir.sh
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -34,11 +44,83 @@ jobs:
           role-session-name: GithubActions
           role-to-assume: arn:aws:iam::635566486216:role/GitHubActionsDeployRole
 
-      - name: Terragrunt Plan
-        working-directory: environments
-        run: terragrunt run-all plan
+      - name: Terragrunt TGW Plan
+        working-directory: environments/common/networking/transit-gateway
+        run: terragrunt plan --all
 
-      - name: Terragrunt Apply
-        working-directory: environments
-        run: terragrunt run-all apply
+      - name: Terragrunt TGW Apply
+        working-directory: environments/common/networking/transit-gateway
+        env:
+          TERRAGRUNT_NON_INTERACTIVE: "true"
+          TF_INPUT: "false"
+        run: terragrunt apply --all -auto-approve
 
+      - name: Terragrunt Firewall Plan
+        working-directory: environments/common/firewall-admin
+        run: terragrunt plan --all
+
+      - name: Terragrunt Firewall Apply
+        working-directory: environments/common/firewall-admin
+        env:
+          TERRAGRUNT_NON_INTERACTIVE: "true"
+          TF_INPUT: "false"
+        run: terragrunt apply --all -auto-approve
+
+      - name: Cleanup after Firewall Apply
+        run: ./cleanup_terraform_current_dir.sh environments/common/firewall-admin
+
+      - name: Terragrunt Dev Plan
+        working-directory: environments/dev
+        run: terragrunt plan --all
+
+      - name: Terragrunt Dev Apply
+        working-directory: environments/dev
+        env:
+          TERRAGRUNT_NON_INTERACTIVE: "true"
+          TF_INPUT: "false"
+        run: terragrunt apply --all -auto-approve
+
+      - name: Cleanup after Dev Apply
+        run: ./cleanup_terraform_current_dir.sh environments/dev
+
+      - name: Terragrunt Prod Plan
+        working-directory: environments/production
+        run: terragrunt plan --all
+
+      - name: Terragrunt Prod Apply
+        working-directory: environments/production
+        env:
+          TERRAGRUNT_NON_INTERACTIVE: "true"
+          TF_INPUT: "false"
+        run: terragrunt apply --all -auto-approve
+
+      - name: Cleanup after Prod Apply
+        run: ./cleanup_terraform_current_dir.sh environments/production
+
+      - name: Terragrunt teamcity Plan
+        working-directory: environments/teamcity
+        run: terragrunt plan --all
+
+      - name: Terragrunt teamcity Apply
+        working-directory: environments/teamcity
+        env:
+          TERRAGRUNT_NON_INTERACTIVE: "true"
+          TF_INPUT: "false"
+        run: terragrunt apply --all -auto-approve
+
+      - name: Cleanup after Teamcity Apply
+        run: ./cleanup_terraform_current_dir.sh environments/teamcity
+
+      - name: Terragrunt TGW Routing Plan
+        working-directory: environments/common/networking/transit-gateway-routing
+        run: terragrunt plan --all
+
+      - name: Terragrunt TGW Routing Apply
+        working-directory: environments/common/networking/transit-gateway-routing
+        env:
+          TERRAGRUNT_NON_INTERACTIVE: "true"
+          TF_INPUT: "false"
+        run: terragrunt apply --all -auto-approve
+
+      - name: Cleanup after TGW Apply
+        run: ./cleanup_terraform_current_dir.sh environments/common/networking/transit-gateway

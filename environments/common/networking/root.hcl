@@ -17,7 +17,7 @@ remote_state {
     key            = "common/networking/${path_relative_to_include()}/terraform.tfstate"
     
     # Cross-account access
-    role_arn = "arn:aws:iam::${local.account_id}:role/TerraformStateExecutionRole"
+    # role_arn = "arn:aws:iam::${local.account_id}:role/TerraformStateExecutionRole"
     
     # If using profiles
     profile = "sifi_network"
