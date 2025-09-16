@@ -3,8 +3,10 @@ name: Terragrunt CI/CD
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   terragrunt:
@@ -17,7 +19,7 @@ jobs:
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
+        with: 
           terraform_version: 1.9.7
 
       - name: Install Terragrunt
@@ -27,6 +29,9 @@ jobs:
           chmod +x terragrunt_linux_amd64
           sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
 
+      - name: Make cleanup script executable
+        run: chmod +x ./cleanup_terraform_current_dir.sh
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -34,11 +39,41 @@ jobs:
           role-session-name: GithubActions
           role-to-assume: arn:aws:iam::635566486216:role/GitHubActionsDeployRole
 
-      - name: Terragrunt Plan
-        working-directory: environments
-        run: terragrunt run-all plan
+      - name: Terragrunt TGW Apply
+        working-directory: environments/common/networking/transit-gateway
+        run: terragrunt apply --all --terragrunt-non-interactive
 
-      - name: Terragrunt Apply
-        working-directory: environments
-        run: terragrunt run-all apply
+      - name: Terragrunt Firewall Apply
+        working-directory: environments/common/firewall-admin
+        run: terragrunt apply --all --terragrunt-non-interactive
 
+      - name: Cleanup after Firewall Apply
+        run: ./cleanup_terraform_current_dir.sh environments/common/firewall-admin
+
+      - name: Terragrunt Dev Apply
+        working-directory: environments/dev
+        run: terragrunt apply --all --terragrunt-non-interactive
+
+      - name: Cleanup after Dev Apply
+        run: ./cleanup_terraform_current_dir.sh environments/dev
+
+      - name: Terragrunt Prod Apply
+        working-directory: environments/production
+        run: terragrunt apply --all --terragrunt-non-interactive
+
+      - name: Cleanup after Prod Apply
+        run: ./cleanup_terraform_current_dir.sh environments/production
+
+      - name: Terragrunt teamcity Apply
+        working-directory: environments/teamcity
+        run: terragrunt apply --all --terragrunt-non-interactive
+
+      - name: Cleanup after Teamcity Apply
+        run: ./cleanup_terraform_current_dir.sh environments/teamcity
+
+      - name: Terragrunt TGW Routing Apply
+        working-directory: environments/common/networking/transit-gateway-routing
+        run: terragrunt apply --all --terragrunt-non-interactive
+
+      - name: Cleanup after TGW Apply
+        run: ./cleanup_terraform_current_dir.sh environments/common/networking/transit-gateway

@@ -2,9 +2,9 @@
 terragrunt_version_constraint = "= 0.86.1"
 
 locals {
-  account_name    = "TeamCity"
   region          = "us-east-2"
   account_id      = "206254861935"
+  account_name    = "TeamCity-Account"
 }
 
 remote_state {
@@ -20,7 +20,7 @@ remote_state {
     role_arn = "arn:aws:iam::635566486216:role/TerraformStateExecutionRole"
     
     # If using profiles
-    # profile = "sifi_network"
+    # profile = "networking_account"
   }
   
   generate = {
@@ -35,7 +35,7 @@ generate "provider" {
   contents  = <<EOF
 provider "aws" {
   region  = "us-east-2"
-  # profile = "sifi_teamcity"
+  # profile = "teamcity-account"
 
   assume_role {
     role_arn     = "arn:aws:iam::${local.account_id}:role/TerraformExecutionRole"

@@ -1,0 +1,172 @@
+name: Terragrunt Plan
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write  # For PR comments
+
+jobs:
+  terragrunt-plan:
+    name: Terragrunt Plan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.7
+
+      - name: Install Terragrunt
+        run: |
+          TG_VERSION=0.86.1
+          wget https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64
+          chmod +x terragrunt_linux_amd64
+          sudo mv terragrunt_linux_amd64 /usr/local/bin/terragrunt
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-2
+          role-session-name: GithubActionsPlan
+          role-to-assume: arn:aws:iam::635566486216:role/GitHubActionsDeployRole
+
+      - name: Terragrunt TGW Plan
+        id: tgw-plan
+        working-directory: environments/common/networking/transit-gateway
+        run: |
+          terragrunt run-all plan -no-color > /tmp/tgw-plan.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Terragrunt Firewall Plan
+        id: firewall-plan
+        working-directory: environments/common/firewall-admin
+        run: |
+          terragrunt run-all plan -no-color > /tmp/firewall-plan.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Terragrunt Dev Plan
+        id: dev-plan
+        working-directory: environments/dev
+        run: |
+          terragrunt run-all plan -no-color > /tmp/dev-plan.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Terragrunt Prod Plan
+        id: prod-plan
+        working-directory: environments/production
+        run: |
+          terragrunt run-all plan -no-color > /tmp/prod-plan.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Terragrunt TeamCity Plan
+        id: teamcity-plan
+        working-directory: environments/teamcity
+        run: |
+          terragrunt run-all plan -no-color > /tmp/teamcity-plan.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Terragrunt TGW Routing Plan
+        id: tgw-routing-plan
+        working-directory: environments/common/networking/transit-gateway-routing
+        run: |
+          terragrunt run-all plan -no-color > /tmp/tgw-routing-plan.txt 2>&1
+          echo "exit_code=$?" >> $GITHUB_OUTPUT
+        continue-on-error: true
+
+      - name: Comment PR with Plan Results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            function readPlanOutput(filename) {
+              try {
+                return fs.readFileSync(filename, 'utf8');
+              } catch (error) {
+                return `Error reading plan output: ${error.message}`;
+              }
+            }
+
+            function truncateOutput(output, maxLength = 8000) {
+              if (output.length <= maxLength) return output;
+              return output.substring(0, maxLength) + '\n... (truncated)';
+            }
+
+            const planResults = {
+              'Transit Gateway': {
+                exitCode: '${{ steps.tgw-plan.outputs.exit_code }}',
+                output: readPlanOutput('/tmp/tgw-plan.txt')
+              },
+              'Firewall': {
+                exitCode: '${{ steps.firewall-plan.outputs.exit_code }}',
+                output: readPlanOutput('/tmp/firewall-plan.txt')
+              },
+              'Development': {
+                exitCode: '${{ steps.dev-plan.outputs.exit_code }}',
+                output: readPlanOutput('/tmp/dev-plan.txt')
+              },
+              'Production': {
+                exitCode: '${{ steps.prod-plan.outputs.exit_code }}',
+                output: readPlanOutput('/tmp/prod-plan.txt')
+              },
+              'TeamCity': {
+                exitCode: '${{ steps.teamcity-plan.outputs.exit_code }}',
+                output: readPlanOutput('/tmp/teamcity-plan.txt')
+              },
+              'Transit Gateway Routing': {
+                exitCode: '${{ steps.tgw-routing-plan.outputs.exit_code }}',
+                output: readPlanOutput('/tmp/tgw-routing-plan.txt')
+              }
+            };
+
+            let comment = '## 🏗️ Terragrunt Plan Results\n\n';
+
+            for (const [environment, result] of Object.entries(planResults)) {
+              const status = result.exitCode === '0' ? '✅ Success' : '❌ Failed';
+              const icon = result.exitCode === '0' ? '✅' : '❌';
+
+              comment += `### ${icon} ${environment}\n`;
+              comment += `**Status:** ${status}\n`;
+              comment += `<details>\n<summary>View Plan Output</summary>\n\n`;
+              comment += '```hcl\n';
+              comment += truncateOutput(result.output);
+              comment += '\n```\n';
+              comment += '</details>\n\n';
+            }
+
+            comment += '---\n';
+            comment += '*This plan will be automatically applied when this PR is merged to main.*';
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: Check Plan Status
+        run: |
+          if [ "${{ steps.tgw-plan.outputs.exit_code }}" != "0" ] || 
+             [ "${{ steps.firewall-plan.outputs.exit_code }}" != "0" ] || 
+             [ "${{ steps.dev-plan.outputs.exit_code }}" != "0" ] || 
+             [ "${{ steps.prod-plan.outputs.exit_code }}" != "0" ] || 
+             [ "${{ steps.teamcity-plan.outputs.exit_code }}" != "0" ] || 
+             [ "${{ steps.tgw-routing-plan.outputs.exit_code }}" != "0" ]; then
+            echo "One or more Terragrunt plans failed. Check the outputs above."
+            exit 1
+          fi
+          echo "All Terragrunt plans completed successfully!"

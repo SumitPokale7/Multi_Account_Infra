@@ -45,7 +45,6 @@ inputs = {
     Endpoints        = "10.31.0.0/16"
     SecurityInbound  = "10.32.0.0/16"
     SecurityOutbound = "10.33.0.0/16"
-
   }
 
   common_tags = {

@@ -3,8 +3,8 @@ terragrunt_version_constraint = "= 0.86.1"
 
 locals {
   region          = "us-east-2"
+  account_name    = "Prod-Account"
   account_id      = "327903111409"
-  account_name    = "Application-Workload-PROD-Account"
 }
 
 remote_state {
@@ -20,7 +20,7 @@ remote_state {
     role_arn = "arn:aws:iam::635566486216:role/TerraformStateExecutionRole"
     
     # If using profiles
-    # profile = "sifi_network"
+    # profile = "network_account"
   }
   
   generate = {
@@ -35,7 +35,7 @@ generate "provider" {
   contents  = <<EOF
 provider "aws" {
   region  = "us-east-2"
-  # profile = "sifi_prod"
+  # profile = "prod_account"
 
   assume_role {
     role_arn     = "arn:aws:iam::${local.account_id}:role/TerraformExecutionRole"
