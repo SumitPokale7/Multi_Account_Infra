@@ -34,7 +34,6 @@ inputs = {
     SmartVMA         = "10.12.0.0/16"
     FullAdv          = "10.20.0.0/16"
     MezzoProd        = "10.21.0.0/16"
-    TeamCity         = "172.30.0.0/16"
     DMZ              = "10.30.0.0/16"
     SecurityInbound  = "10.32.0.0/16"
     SecurityOutbound = "10.33.0.0/16"

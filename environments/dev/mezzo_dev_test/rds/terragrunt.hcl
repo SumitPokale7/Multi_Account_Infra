@@ -8,10 +8,9 @@ terraform {
 
 dependency "vpc" {
   config_path = "../vpc"
-
+  
   mock_outputs = {
     vpc_id             = "mock-vpc-output"
-
     private_subnet_ids = {
       db = ["subnet-12345", "subnet-67890"]
     }
@@ -20,7 +19,7 @@ dependency "vpc" {
 
 dependency "sg" {
   config_path = "../security-groups"
-
+  
   mock_outputs = {
     sg_ids = {
       rds-sg = "mock-security_groups-output"
@@ -35,7 +34,7 @@ inputs = {
   # Database Configuration
   username               = "admin"
   engine                 = "aurora-mysql"
-  name                   = "smartvma-eval-db"
+  name                   = "mezzo-dev-test-db"
   password               = "SecretPass123!"
   engine_version         = "5.7.mysql_aurora.2.11.0"
   
@@ -53,7 +52,7 @@ inputs = {
 
   tags = {
     Environment = "dev"
-    Account     = "smartvma-eval"
+    Account     = "mezzo-dev-test"
     Project     = "mezzo"
     ManagedBy   = "terraform"
   }

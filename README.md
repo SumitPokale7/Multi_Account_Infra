@@ -1,4 +1,4 @@
-This repository provides a **modular**, **multi-account** AWS infrastructure setup using **Terraform** and **Terragrunt**. It supports multiple environments—**dev**, **production**, and **teamcity**—with shared networking and security resources, following best practices for **scalable**, **secure**, and **maintainable** cloud architecture.
+This repository provides a **modular**, **multi-account** AWS infrastructure setup using **Terraform** and **Terragrunt**. It supports multiple environments—**dev**, **production**, and with shared networking and security resources, following best practices for **scalable**, **secure**, and **maintainable** cloud architecture.
 
 ---
 
@@ -10,7 +10,6 @@ This repository provides a **modular**, **multi-account** AWS infrastructure set
 │   ├── common/        # Shared Accounts: networking, firewall-admin
 │   ├── dev/           # Development environment
 │   ├── production/    # Production environment
-│   └── teamcity/      # teamcity environment
 └── modules/           # Reusable Terraform modules for AWS resources
 ```
 
@@ -20,7 +19,7 @@ This repository provides a **modular**, **multi-account** AWS infrastructure set
 
 **common/** – Shared networking/security modules.
 
-**dev/, production/, teamcity/** – Account/environment-specific infrastructure.
+**dev/, production/ – Account/environment-specific infrastructure.
 
 **modules/** – Terraform modules for AWS services such as: alb, ec2, gwlb, network_firewall, rds, security_groups, transit-gateway, vpc, waf, etc.
 
@@ -30,7 +29,7 @@ This repository provides a **modular**, **multi-account** AWS infrastructure set
 - Modular Terraform Design Infrastructure code is organized into reusable and composable modules.
 
 - Multi-Environment Support
-Easily deploy dev, production, and TeamCity environments in isolation.
+Easily deploy dev, production environments in isolation.
 
 - Security & Networking First
 
@@ -65,7 +64,7 @@ Use environment variables or ~/.aws/credentials:
 Navigate to the desired environment directory, e.g.:
 
     ```bash
-    cd environments/dev/mezzo-beta/
+    cd environments/dev/mezzo-dev/
     Run the following commands:
     ```
     ```bash
@@ -100,7 +99,6 @@ Navigate to the desired environment directory, e.g.:
 | `environments/common/`     | Shared infrastructure (networking, firewall) |
 | `environments/dev/`        | Development environment                      |
 | `environments/production/` | Production environment                       |
-| `environments/teamcity/`   | TeamCity environment |
 | `modules/`                 | Reusable Terraform modules for AWS resources |
 
 

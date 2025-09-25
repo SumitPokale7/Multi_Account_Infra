@@ -70,14 +70,6 @@ jobs:
           echo "exit_code=$?" >> $GITHUB_OUTPUT
         continue-on-error: true
 
-      - name: Terragrunt TeamCity Plan
-        id: teamcity-plan
-        working-directory: environments/teamcity
-        run: |
-          terragrunt run-all plan -no-color > /tmp/teamcity-plan.txt 2>&1
-          echo "exit_code=$?" >> $GITHUB_OUTPUT
-        continue-on-error: true
-
       - name: Terragrunt TGW Routing Plan
         id: tgw-routing-plan
         working-directory: environments/common/networking/transit-gateway-routing
@@ -123,10 +115,6 @@ jobs:
                 exitCode: '${{ steps.prod-plan.outputs.exit_code }}',
                 output: readPlanOutput('/tmp/prod-plan.txt')
               },
-              'TeamCity': {
-                exitCode: '${{ steps.teamcity-plan.outputs.exit_code }}',
-                output: readPlanOutput('/tmp/teamcity-plan.txt')
-              },
               'Transit Gateway Routing': {
                 exitCode: '${{ steps.tgw-routing-plan.outputs.exit_code }}',
                 output: readPlanOutput('/tmp/tgw-routing-plan.txt')
@@ -164,7 +152,6 @@ jobs:
              [ "${{ steps.firewall-plan.outputs.exit_code }}" != "0" ] || 
              [ "${{ steps.dev-plan.outputs.exit_code }}" != "0" ] || 
              [ "${{ steps.prod-plan.outputs.exit_code }}" != "0" ] || 
-             [ "${{ steps.teamcity-plan.outputs.exit_code }}" != "0" ] || 
              [ "${{ steps.tgw-routing-plan.outputs.exit_code }}" != "0" ]; then
             echo "One or more Terragrunt plans failed. Check the outputs above."
             exit 1

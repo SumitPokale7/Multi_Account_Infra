@@ -64,13 +64,6 @@ jobs:
       - name: Cleanup after Prod Apply
         run: ./cleanup_terraform_current_dir.sh environments/production
 
-      - name: Terragrunt teamcity Apply
-        working-directory: environments/teamcity
-        run: terragrunt apply --all --terragrunt-non-interactive
-
-      - name: Cleanup after Teamcity Apply
-        run: ./cleanup_terraform_current_dir.sh environments/teamcity
-
       - name: Terragrunt TGW Routing Apply
         working-directory: environments/common/networking/transit-gateway-routing
         run: terragrunt apply --all --terragrunt-non-interactive

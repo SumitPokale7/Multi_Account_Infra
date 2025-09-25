@@ -3,7 +3,7 @@ terragrunt_version_constraint = "= 0.86.1"
 
 locals {
   region          = "us-east-2"
-  account_name    = "DEV-Account"
+  account_name    = "Workload Account - 1 (Dev)"
   account_id      = "390259467653"
 }
 

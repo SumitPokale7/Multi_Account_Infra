@@ -49,7 +49,7 @@ dependency "security_outbound_tgw_attachments" {
 
 # Dev 
 dependency "mezzo_beta_tgw_attachments" {
-  config_path = "../../../dev/mezzo-beta/vpc"
+  config_path = "../../../dev/mezzo-dev/vpc"
 
   mock_outputs = {
     tgw_attachment_id = "mock-mezzo_beta_tgw_attachments-output"
@@ -57,7 +57,7 @@ dependency "mezzo_beta_tgw_attachments" {
 }
 
 dependency "mezzo_eval_tgw_attachments" {
-  config_path = "../../../dev/mezzo-eval/vpc"
+  config_path = "../../../dev/mezzo-dev-test/vpc"
 
   mock_outputs = {
     tgw_attachment_id = "mock-mezzo_eval_tgw_attachments-output"
@@ -89,15 +89,6 @@ dependency "mezzo_prod_tgw_attachments" {
   }
 }
 
-# Teamcity
-dependency "teamcity_tgw_attachments" {
-  config_path = "../../../teamcity/teamcity/vpc"
-
-  mock_outputs = {
-    tgw_attachment_id = "mock-teamcity_tgw_attachments-output"
-  }
-}
-
 inputs = {
   tgw_id = dependency.tgw.outputs.transit_gateway_id
 
@@ -115,7 +106,6 @@ inputs = {
         dependency.smartvma_eval_tgw_attachments.outputs.tgw_attachment_id,
         dependency.fulladv_prod_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_prod_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
       ]
     }
 
@@ -132,7 +122,6 @@ inputs = {
         dependency.smartvma_eval_tgw_attachments.outputs.tgw_attachment_id,
         dependency.fulladv_prod_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_prod_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
       ]
     }
 
@@ -149,7 +138,6 @@ inputs = {
         dependency.smartvma_eval_tgw_attachments.outputs.tgw_attachment_id,
         dependency.fulladv_prod_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_prod_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
       ]
     }
 
@@ -166,20 +154,18 @@ inputs = {
         dependency.smartvma_eval_tgw_attachments.outputs.tgw_attachment_id,
         dependency.fulladv_prod_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_prod_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
       ]
     }
 
     # 5. Mezzo Beta - Dev environment with full connectivity
     mezzo_beta = {
-      name         = "Mezzo-Beta-RT"
+      name         = "mezzo-dev-RT"
       associations = [dependency.mezzo_beta_tgw_attachments.outputs.tgw_attachment_id]
       propagations = [
         dependency.dmz_tgw_attachments.outputs.tgw_attachment_id,
         dependency.security_inbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.security_outbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.endpoints_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_eval_tgw_attachments.outputs.tgw_attachment_id,
         dependency.smartvma_eval_tgw_attachments.outputs.tgw_attachment_id,
       ]
@@ -187,14 +173,13 @@ inputs = {
 
     # 6. Mezzo Eval - Dev environment with full connectivity
     mezzo_eval = {
-      name         = "Mezzo-Eval-RT"
+      name         = "mezzo-dev-test-RT"
       associations = [dependency.mezzo_eval_tgw_attachments.outputs.tgw_attachment_id]
       propagations = [
         dependency.dmz_tgw_attachments.outputs.tgw_attachment_id,
         dependency.security_inbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.security_outbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.endpoints_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_beta_tgw_attachments.outputs.tgw_attachment_id,
         dependency.smartvma_eval_tgw_attachments.outputs.tgw_attachment_id,
       ]
@@ -209,7 +194,6 @@ inputs = {
         dependency.security_inbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.security_outbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.endpoints_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_beta_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_eval_tgw_attachments.outputs.tgw_attachment_id,
       ]
@@ -224,7 +208,6 @@ inputs = {
         dependency.security_inbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.security_outbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.endpoints_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
         dependency.fulladv_prod_tgw_attachments.outputs.tgw_attachment_id,
       ]
     }
@@ -238,24 +221,6 @@ inputs = {
         dependency.security_inbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.security_outbound_tgw_attachments.outputs.tgw_attachment_id,
         dependency.endpoints_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.mezzo_prod_tgw_attachments.outputs.tgw_attachment_id,
-      ]
-    }
-
-    # 10. TeamCity - CI/CD with access to all environments for deployments
-    teamcity = {
-      name         = "TeamCity-RT"
-      associations = [dependency.teamcity_tgw_attachments.outputs.tgw_attachment_id]
-      propagations = [
-        dependency.dmz_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.security_inbound_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.security_outbound_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.endpoints_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.mezzo_beta_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.mezzo_eval_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.smartvma_eval_tgw_attachments.outputs.tgw_attachment_id,
-        dependency.fulladv_prod_tgw_attachments.outputs.tgw_attachment_id,
         dependency.mezzo_prod_tgw_attachments.outputs.tgw_attachment_id,
       ]
     }

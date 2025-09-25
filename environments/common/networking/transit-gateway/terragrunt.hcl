@@ -20,7 +20,6 @@ inputs = {
   ram_share_name              = "central-tgw-share"
 
   shared_account_ids = [
-    "206254861935", # TeamCity
     "337537076454", # Firewall Admin Account
     "390259467653", # Application-Workload-DEV-Account
     "327903111409", # Application-Workload-PROD-Account

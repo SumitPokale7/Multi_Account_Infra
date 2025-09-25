@@ -36,7 +36,6 @@ inputs = {
     MezzoEval        = "10.11.0.0/16"
     SmartVMA         = "10.12.0.0/16"
     MezzoProd        = "10.21.0.0/16"
-    TeamCity         = "172.30.0.0/16"
     DMZ              = "10.30.0.0/16"
     Endpoints        = "10.31.0.0/16"
     SecurityInbound  = "10.32.0.0/16"
